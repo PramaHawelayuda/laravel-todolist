@@ -8,10 +8,18 @@ use Tests\TestCase;
 
 class UserControllerTest extends TestCase
 {
-    public function testLoginController()
+    public function testLoginPage()
     {
         $this->get('/login')
             ->assertSeeText('Login');
+    }
+
+    public function testLoginForMember()
+    {
+        $this->withSession([
+            'user' => 'prama'
+        ])->get('/login')
+            ->assertRedirect('/');
     }
 
     public function testLoginSuccess()
@@ -21,5 +29,28 @@ class UserControllerTest extends TestCase
             'password' => 'rahasia'
         ])->assertRedirect('/')
             ->assertSessionHas('user', 'prama');
+    }
+
+    public function testLoginValidationError()
+    {
+        $this->post('/login', [])
+            ->assertSeeText('User or password is required');
+    }
+
+    public function testLoginFailed()
+    {
+        $this->post('/login', [
+            'user' => 'wrong',
+            'password' => 'wrong'
+        ])->assertSeeText('User or password is wrong');
+    }
+
+    public function testLogout()
+    {
+        $this->withSession([
+            'user' => 'prama'
+        ])->post('/logout')
+            ->assertRedirect('/')
+            ->assertSessionMissing('user');
     }
 }
