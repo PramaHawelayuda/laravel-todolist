@@ -53,4 +53,10 @@ class UserControllerTest extends TestCase
             ->assertRedirect('/')
             ->assertSessionMissing('user');
     }
+
+    public function testGuest()
+    {
+        $this->post('/logout')
+            ->assertRedirect('/');
+    }
 }
